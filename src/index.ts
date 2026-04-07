@@ -1,0 +1,1 @@
+console.log("Hello, World! This is a TypeScript project with NodeNext module system and ESNext target.");
