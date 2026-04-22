@@ -14,9 +14,58 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model user{
-  id  Int @id @default(autoincrement()) 
-  name String 
-  password String @unique
-  mail String? 
+model User {
+  id        String   @id @default(uuid())
+  email     String?  @unique // Optional if you allow guest usage
+  createdAt DateTime @default(now())
+  
+  // A user can process many images
+  logs      Log[]    
+}
+model Exam {
+  id          String   @id @default(uuid())
+  name        String   @unique // e.g., "UPSC Civil Services"
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  // An exam has multiple specific photo/signature rules
+  requirements Requirement[] 
+}
+
+// The strict rules for a specific upload
+model Requirement {
+  id             String @id @default(uuid())
+  examId         String
+  documentType   String // e.g., "PHOTO", "SIGNATURE", "THUMB"
+  
+  // File size limits in KB
+  minSizeKb      Int    
+  maxSizeKb      Int    
+  
+  // Dimension limits in Pixels or CM (Store as Pixels for Sharp to process)
+  widthPx        Int    
+  heightPx       Int    
+  
+  // Other strict rules
+  format         String @default("JPEG") // e.g., "JPEG", "JPG"
+  dpi            Int?   // e.g., 200 or 300
+  bgColor        String? // e.g., "WHITE", "LIGHT_GREY"
+
+  // Relation mapping
+  exam           Exam   @relation(fields: [examId], references: [id], onDelete: Cascade)
+}
+
+// The tracker for your resume metrics
+model Log {
+  id           String   @id @default(uuid())
+  userId       String?  // Nullable if done by a guest
+  documentType String   // e.g., "PHOTO"
+  originalSize Int      // Size before Valid Snap (in KB)
+  finalSize    Int      // Size after Valid Snap (in KB)
+  success      Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  // Relation mapping
+  user         User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
 }
