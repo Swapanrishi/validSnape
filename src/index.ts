@@ -1,1 +1,11 @@
-console.log("Hello, World! This is a TypeScript project with NodeNext module system and ESNext target.");
+import express, { type Request,type  Response } from 'express';
+
+const app = express();
+
+app.get('/', (req: Request, res: Response) => {
+  res.json({ message: 'Hello, World!' });
+});
+
+app.listen(3000, () => {
+  console.log('Server is running on port 3000');
+});
